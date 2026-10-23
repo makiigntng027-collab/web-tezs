@@ -1,0 +1,214 @@
+body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+button:not(:disabled):active {
+  animation: button-press 180ms ease-out;
+    }
+@keyframes button-press {
+  35% {
+    transform: scale(0.94) translateY(2px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  button:not(:disabled):active {
+    animation: none;
+  }
+}
+.font-orbitron {
+  font-family: 'Orbitron', sans-serif;
+}
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0a0a12;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1f1f3a;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #00f3ff;
+    }
+    /* Glassmorphism card utility */
+    .glass-panel {
+      background: rgba(18, 18, 34, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .light .glass-panel {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    /* Glow text animation */
+    .glow-text {
+      text-shadow: 0 0 10px rgba(0, 243, 255, 0.6), 0 0 20px rgba(0, 243, 255, 0.3);
+    }
+    html[data-site-theme] .text-brand-cyan,
+    html[data-site-theme] .hover\:text-brand-cyan:hover,
+    html[data-site-theme] .focus\:text-brand-cyan:focus {
+      color: var(--site-primary) !important;
+    }
+    html[data-site-theme] .text-brand-purple,
+    html[data-site-theme] .hover\:text-brand-purple:hover {
+      color: var(--site-secondary) !important;
+    }
+    html[data-site-theme] .text-brand-pink,
+    html[data-site-theme] .hover\:text-brand-pink:hover {
+      color: var(--site-tertiary) !important;
+    }
+    html[data-site-theme] .bg-brand-cyan {
+      background-color: var(--site-primary) !important;
+    }
+    html[data-site-theme] .bg-brand-cyan\/10 {
+      background-color: color-mix(in srgb, var(--site-primary) 10%, transparent) !important;
+    }
+    html[data-site-theme] .bg-brand-cyan\/15 {
+      background-color: color-mix(in srgb, var(--site-primary) 15%, transparent) !important;
+    }
+    html[data-site-theme] .bg-brand-cyan\/20 {
+      background-color: color-mix(in srgb, var(--site-primary) 20%, transparent) !important;
+    }
+    html[data-site-theme] .bg-brand-purple {
+      background-color: var(--site-secondary) !important;
+    }
+    html[data-site-theme] .bg-brand-purple\/20 {
+      background-color: color-mix(in srgb, var(--site-secondary) 20%, transparent) !important;
+    }
+    html[data-site-theme] .bg-brand-pink {
+      background-color: var(--site-tertiary) !important;
+    }
+    html[data-site-theme] .bg-brand-pink\/10 {
+      background-color: color-mix(in srgb, var(--site-tertiary) 10%, transparent) !important;
+    }
+    html[data-site-theme] .border-brand-cyan,
+    html[data-site-theme] .border-brand-cyan\/30,
+    html[data-site-theme] .border-brand-cyan\/40 {
+      border-color: color-mix(in srgb, var(--site-primary) 40%, transparent) !important;
+    }
+    html[data-site-theme] .border-brand-purple,
+    html[data-site-theme] .border-brand-purple\/30,
+    html[data-site-theme] .border-brand-purple\/40 {
+      border-color: color-mix(in srgb, var(--site-secondary) 40%, transparent) !important;
+    }
+    html[data-site-theme] .border-brand-pink,
+    html[data-site-theme] .border-brand-pink\/30,
+    html[data-site-theme] .border-brand-pink\/40 {
+      border-color: color-mix(in srgb, var(--site-tertiary) 40%, transparent) !important;
+    }
+    html[data-site-theme] .hover\:border-brand-cyan:hover {
+      border-color: var(--site-primary) !important;
+    }
+    html[data-site-theme] .from-brand-cyan {
+      --tw-gradient-from: var(--site-primary) var(--tw-gradient-from-position) !important;
+      --tw-gradient-to: color-mix(in srgb, var(--site-primary) 0%, transparent) var(--tw-gradient-to-position) !important;
+    }
+    html[data-site-theme] .to-brand-purple {
+      --tw-gradient-to: var(--site-secondary) var(--tw-gradient-to-position) !important;
+    }
+    html[data-site-theme] .to-brand-pink {
+      --tw-gradient-to: var(--site-tertiary) var(--tw-gradient-to-position) !important;
+    }
+    html[data-site-theme] .shadow-neon-cyan {
+      --tw-shadow-color: color-mix(in srgb, var(--site-primary) 40%, transparent);
+      box-shadow: 0 0 15px color-mix(in srgb, var(--site-primary) 40%, transparent) !important;
+    }
+    #mainWebsite.site-enter > header {
+      animation: website-menu-enter 650ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    }
+    @keyframes website-menu-enter {
+      from {
+        opacity: 0;
+        transform: translateY(-24px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    #sidebar.sidebar-menu-open nav a,
+    #sidebar.sidebar-menu-open nav button {
+      animation: sidebar-link-enter 350ms ease-out both;
+    }
+    #sidebar.sidebar-menu-open nav a:nth-child(1),
+    #sidebar.sidebar-menu-open nav button:nth-child(1) {
+      animation-delay: 30ms;
+    }
+    #sidebar.sidebar-menu-open nav a:nth-child(2) {
+      animation-delay: 70ms;
+    }
+    #sidebar.sidebar-menu-open nav a:nth-child(3) {
+      animation-delay: 110ms;
+    }
+    #sidebar.sidebar-menu-open nav a:nth-child(4) {
+      animation-delay: 150ms;
+    }
+    #sidebar.sidebar-menu-open nav a:nth-child(5) {
+      animation-delay: 190ms;
+    }
+    #sidebar.sidebar-menu-open nav a:nth-child(6) {
+      animation-delay: 230ms;
+    }
+    #sidebar.sidebar-menu-open nav a:nth-child(7) {
+      animation-delay: 270ms;
+    }
+    @keyframes sidebar-link-enter {
+      from {
+        opacity: 0;
+        transform: translateX(-14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    #babuListContent > div,
+    #babuListContent > div > span {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+    #struktur .org-card {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 500ms ease, transform 500ms ease, box-shadow 250ms ease;
+    }
+    #struktur .org-card.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    #struktur .org-card:nth-child(2) {
+      transition-delay: 80ms;
+    }
+    #struktur .org-card:nth-child(3) {
+      transition-delay: 160ms;
+    }
+    #struktur .org-card:nth-child(4) {
+      transition-delay: 240ms;
+    }
+    #struktur .org-card:nth-child(5) {
+      transition-delay: 320ms;
+    }
+    @media (hover: hover) {
+      #struktur .org-card:hover {
+        transform: translateY(-6px) scale(1.02);
+        box-shadow: 0 12px 28px rgba(0, 243, 255, 0.14);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #mainWebsite.site-enter > header,
+      #sidebar.sidebar-menu-open nav a,
+      #sidebar.sidebar-menu-open nav button {
+        animation: none;
+      }
+      #struktur .org-card,
+      #struktur .org-card.is-visible {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+    }

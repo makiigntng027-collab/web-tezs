@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DIXXIE NEWERA | Situs Pribadi</title>
+  <script src="script.js"></script>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              cyan: '#00f3ff',
+              purple: '#b000ff',
+              pink: '#ff007f',
+              dark: '#0a0a12',
+              card: '#121222'
+            }
+          },
+          boxShadow: {
+            'neon-cyan': '0 0 15px rgba(0, 243, 255, 0.4)',
+            'neon-purple': '0 0 15px rgba(176, 0, 255, 0.4)',
+            'neon-pink': '0 0 15px rgba(255, 0, 127, 0.4)'
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-brand-dark text-slate-100 transition-colors duration-300 min-h-screen flex flex-col overflow-x-hidden selection:bg-brand-cyan selection:text-black">
+
+  <!-- ==================== AUTHENTICATION OVERLAY / SCREEN ==================== -->
+  <div id="authScreen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-dark/95 backdrop-blur-md transition-opacity duration-500">
+    <!-- Animated background accents -->
+    <div class="absolute -top-32 -left-32 w-96 h-96 bg-brand-purple/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-brand-cyan/20 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="glass-panel w-full max-w-md p-8 rounded-2xl shadow-2xl relative border border-brand-cyan/30">
+      
+      <!-- Logo Header -->
+      <div class="text-center mb-8">
+        <h1 class="font-orbitron text-3xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan via-purple-400 to-brand-pink glow-text">
+          DIXXIE NEWERA
+        </h1>
+        <p class="text-xs tracking-widest text-slate-400 uppercase mt-2">Verifikasi Akses Website</p>
+      </div>
+
+      <!-- Notification Toast inside Auth -->
+      <div id="authToast" class="hidden mb-4 p-3 text-xs rounded-lg text-center transition-all"></div>
+
+      <!-- Auth Tabs Switcher -->
+      <div class="flex bg-slate-900/60 p-1 rounded-xl mb-6 border border-slate-800">
+        <button id="tabLoginBtn" onclick="switchAuthTab('login')" class="flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-300 bg-gradient-to-r from-brand-cyan to-blue-600 text-black shadow-neon-cyan">
+          <i class="fa-solid fa-key mr-2"></i>Masuk
+        </button>
+        <button id="tabRegisterBtn" onclick="switchAuthTab('register')" class="flex-1 py-2 rounded-lg text-sm font-semibold text-slate-400 hover:text-white transition-all duration-300">
+          <i class="fa-solid fa-user-plus mr-2"></i>Buat Akun
+        </button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Nama Pengguna</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+              <i class="fa-solid fa-user"></i>
+            </span>
+            <input type="text" id="loginUser" required placeholder="Masukkan nama pengguna" class="w-full pl-10 pr-4 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl focus:outline-none focus:border-brand-cyan focus:ring-1 focus:ring-brand-cyan text-sm transition">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Kata Sandi</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+              <i class="fa-solid fa-lock"></i>
+            </span>
+            <input type="password" id="loginPass" required placeholder="Masukkan kata sandi" class="w-full pl-10 pr-4 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl focus:outline-none focus:border-brand-cyan focus:ring-1 focus:ring-brand-cyan text-sm transition">
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-3 bg-gradient-to-r from-brand-cyan via-blue-500 to-brand-purple text-black font-bold uppercase tracking-wider rounded-xl shadow-lg shadow-brand-cyan/20 hover:opacity-90 active:scale-95 transition-all duration-200 mt-2">
+          Masuk ke Website
+        </button>
+      </form>
+
+      <div id="accountSwitcher" class="hidden mt-5 space-y-2">
+        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Pilih akun untuk masuk</p>
+        <p class="text-[10px] text-slate-500">Kredensial tersimpan di browser ini. Pilih akun untuk mengisi username dan password.</p>
+        <div id="accountSwitcherList" class="grid max-h-40 gap-2 overflow-y-auto"></div>
+        <button type="button" onclick="cancelAccountSwitch()" class="w-full rounded-lg border border-slate-700 px-3 py-2 text-xs text-slate-300 transition hover:bg-slate-800">Batal ganti akun</button>
+      </div>
+
+      <!-- REGISTER FORM -->
+      <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Nama Lengkap</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+              <i class="fa-solid fa-id-card"></i>
+            </span>
+            <input type="text" id="regName" required placeholder="Masukkan nama lengkap" class="w-full pl-10 pr-4 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl focus:outline-none focus:border-brand-purple focus:ring-1 focus:ring-brand-purple text-sm transition">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Nama Pengguna</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+              <i class="fa-solid fa-at"></i>
+            </span>
+            <input type="text" id="regUser" required placeholder="Pilih nama pengguna" class="w-full pl-10 pr-4 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl focus:outline-none focus:border-brand-purple focus:ring-1 focus:ring-brand-purple text-sm transition">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Kata Sandi</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+              <i class="fa-solid fa-shield-halved"></i>
+            </span>
+            <input type="password" id="regPass" required placeholder="Buat kata sandi (min. 3 karakter)" class="w-full pl-10 pr-4 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl focus:outline-none focus:border-brand-purple focus:ring-1 focus:ring-brand-purple text-sm transition">
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-3 bg-gradient-to-r from-brand-purple via-pink-600 to-brand-pink text-white font-bold uppercase tracking-wider rounded-xl shadow-lg shadow-brand-purple/30 hover:opacity-90 active:scale-95 transition-all duration-200 mt-2">
+          Buat Akun
+        </button>
+      </form>
+
+    </div>
+  </div>
+
+
+  <!-- ==================== MAIN DASHBOARD WEBSITE ==================== -->
+  <div id="mainWebsite" class="flex-1 flex flex-col min-h-screen">
+    
+    <!-- TOP NAVIGATION BAR -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-slate-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          
+          <!-- Left: Hamburger Button + Brand -->
+          <div class="flex items-center gap-4">
+            <!-- Sidebar Toggle (3 lines menu icon) -->
+            <button id="hamburgerBtn" onclick="toggleSidebar()" aria-label="Buka menu navigasi" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700/80 text-brand-cyan transition hover:scale-105 active:scale-95">
+              <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+
+            <!-- Brand Logo -->
+            <a href="#home" class="flex items-center gap-3">
+              <img src="logo.jpeg" alt="Logo DIXXIE NEWERA" class="w-12 h-12 rounded-xl object-cover border border-brand-cyan/40 shadow-neon-cyan">
+              <span class="font-orbitron font-black text-xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-purple-400 hidden sm:inline-block">
+                DIXXIE <span class="text-brand-pink font-light">NEWERA</span>
+              </span>
+            </a>
+          </div>
+
+          <!-- Center Navigation Links (Desktop) -->
+          <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
+            <a href="#home" class="hover:text-brand-cyan transition">Beranda</a>
+            <a href="#struktur" class="hover:text-brand-cyan transition">Struktur</a>
+            <a href="#contact" class="hover:text-brand-cyan transition">Kontak</a>
+          </nav>
+
+          <!-- Right: Controls & User Profile -->
+          <div class="flex items-center gap-3">
+            <!-- Theme Toggle Button -->
+            <button onclick="toggleTheme()" class="p-2 rounded-xl bg-slate-800 text-amber-400 hover:text-amber-300 transition" title="Ganti Tema">
+              <i id="themeIcon" class="fa-solid fa-sun text-lg"></i>
+            </button>
+
+            <!-- User Badge & Logout -->
+            <div class="flex items-center gap-3 pl-3 border-l border-slate-800">
+              <div class="text-right hidden sm:block">
+                <p id="currentUserDisplay" class="text-xs font-bold text-slate-200">Pengguna</p>
+                <p class="text-[10px] text-brand-cyan uppercase">Anggota Terverifikasi</p>
+              </div>
+              <button onclick="handleLogout()" title="Keluar" class="p-2 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition">
+                <i class="fa-solid fa-right-from-bracket"></i>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </header>
+
+    <!-- SLIDE-OUT SIDEBAR NAV DRAWER -->
+    <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden transition-opacity duration-300"></div>
+    
+    <aside id="sidebar" class="fixed top-0 left-0 bottom-0 z-50 w-72 overflow-y-auto glass-panel border-r border-slate-800 transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col justify-between">
+      <div>
+        <!-- Sidebar Header -->
+        <div class="p-6 border-b border-slate-800/80 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-cyan to-brand-purple flex items-center justify-center text-black">
+              <i class="fa-solid fa-user"></i>
+            </div>
+            <div>
+              <h2 class="font-orbitron font-bold text-sm text-brand-cyan">DIXXIE NEWERA</h2>
+              <span class="text-[10px] text-slate-400 tracking-wider">KREATOR & PENGEMBANG</span>
+            </div>
+          </div>
+          <button onclick="toggleSidebar()" class="text-slate-400 hover:text-white p-1">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+
+        <!-- Sidebar Links -->
+        <nav class="p-4 space-y-1">
+          <a href="#home" onclick="toggleSidebar()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800/70 text-slate-300 hover:text-brand-cyan transition">
+            <i class="fa-solid fa-user-astronaut w-5 text-brand-cyan"></i>
+            <span class="font-medium text-sm">Beranda</span>
+          </a>
+          <a href="#struktur" onclick="toggleSidebar()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800/70 text-slate-300 hover:text-brand-cyan transition">
+            <i class="fa-solid fa-sitemap w-5 text-emerald-400"></i>
+            <span class="font-medium text-sm">Struktur</span>
+          </a>
+          <a href="#gallery" onclick="toggleSidebar()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800/70 text-slate-300 hover:text-brand-cyan transition">
+            <i class="fa-solid fa-photo-film w-5 text-blue-400"></i>
+            <span class="font-medium text-sm">Galeri Media</span>
+          </a>
+          <a href="#contact" onclick="toggleSidebar()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800/70 text-slate-300 hover:text-brand-cyan transition">
+            <i class="fa-solid fa-paper-plane w-5 text-emerald-400"></i>
+            <span class="font-medium text-sm">Hubungi Saya</span>
+          </a>
+          <a href="#globalChat" onclick="openGlobalChat(event)" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800/70 text-slate-300 hover:text-brand-cyan transition">
+            <i class="fa-solid fa-comments w-5 text-brand-purple"></i>
+            <span class="font-medium text-sm">Global Chat &amp; Message</span>
+          </a>
+          <a href="#accountSettings" onclick="openAccountSettings(event)" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800/70 text-slate-300 hover:text-brand-cyan transition">
+            <i class="fa-solid fa-user-gear w-5 text-brand-purple"></i>
+            <span class="font-medium text-sm">Ubah Username &amp; Password</span>
+          </a>
+          <a href="#babuList" onclick="openBabuList(event)" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800/70 text-slate-300 hover:text-brand-cyan transition">
+            <i class="fa-solid fa-list-ol w-5 text-brand-cyan"></i>
+            <span class="font-medium text-sm">List Babu</span>
+          </a>
+          <a id="adminMenuItem" href="#adminPanel" onclick="openAdminPanel(event)" class="hidden flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800/70 text-slate-300 hover:text-brand-cyan transition">
+            <i class="fa-solid fa-shield-halved w-5 text-brand-pink"></i>
+            <span class="font-medium text-sm">Panel Admin</span>
+          </a>
+          <button id="adminAccountSwitchButton" type="button" onclick="switchAccount()" class="hidden w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-slate-300 transition hover:bg-slate-800/70 hover:text-brand-cyan">
+            <i class="fa-solid fa-right-left w-5 text-brand-purple"></i>
+            <span class="font-medium text-sm">Ganti Akun</span>
+          </button>
+          <div class="mt-3 border-t border-slate-800/80 pt-4">
+            <p class="mb-3 px-4 text-xs font-semibold uppercase tracking-widest text-slate-500">Warna Website</p>
+            <div class="grid grid-cols-5 gap-2 px-4" role="group" aria-label="Pilih warna website">
+              <button type="button" data-site-theme="cyan" aria-label="Tema Cyan" title="Cyan" aria-pressed="true" class="h-9 rounded-lg border border-white/20 bg-cyan-400 transition hover:scale-110"></button>
+              <button type="button" data-site-theme="purple" aria-label="Tema Ungu" title="Ungu" aria-pressed="false" class="h-9 rounded-lg border border-white/20 bg-purple-500 transition hover:scale-110"></button>
+              <button type="button" data-site-theme="pink" aria-label="Tema Merah Muda" title="Merah muda" aria-pressed="false" class="h-9 rounded-lg border border-white/20 bg-pink-500 transition hover:scale-110"></button>
+              <button type="button" data-site-theme="emerald" aria-label="Tema Hijau" title="Hijau" aria-pressed="false" class="h-9 rounded-lg border border-white/20 bg-emerald-500 transition hover:scale-110"></button>
+              <button type="button" data-site-theme="amber" aria-label="Tema Kuning" title="Kuning" aria-pressed="false" class="h-9 rounded-lg border border-white/20 bg-amber-400 transition hover:scale-110"></button>
+            </div>
+            <div class="mx-4 mt-4 space-y-3 rounded-xl border border-slate-700 bg-slate-900/60 p-3">
+              <div class="flex items-center justify-between gap-3">
+                <label for="rgbEnabled" class="text-xs font-semibold text-slate-300">Warna RGB</label>
+                <input id="rgbEnabled" type="checkbox" class="h-4 w-4 accent-cyan-400" aria-label="Aktifkan warna RGB">
+              </div>
+              <div class="flex items-center justify-between gap-3">
+                <label for="rgbRainbow" class="text-xs font-semibold text-slate-300">Mode Rainbow</label>
+                <input id="rgbRainbow" type="checkbox" class="h-4 w-4 accent-fuchsia-500" aria-label="Aktifkan mode rainbow">
+              </div>
+              <div class="flex items-center justify-between gap-3">
+                <p class="text-[11px] text-slate-400">Warna pilihan</p>
+                <span id="rgbColorPreview" class="h-6 w-6 rounded-full border border-white/30 shadow-lg" aria-hidden="true"></span>
+              </div>
+              <label class="flex items-center gap-3 text-xs text-red-300">
+                <span class="w-4 font-bold">R</span>
+                <input id="rgbRed" type="range" min="0" max="255" value="0" class="min-w-0 flex-1 accent-red-500" aria-label="Nilai merah">
+                <output id="rgbRedValue" for="rgbRed" class="w-8 text-right tabular-nums">0</output>
+              </label>
+              <label class="flex items-center gap-3 text-xs text-green-300">
+                <span class="w-4 font-bold">G</span>
+                <input id="rgbGreen" type="range" min="0" max="255" value="243" class="min-w-0 flex-1 accent-green-500" aria-label="Nilai hijau">
+                <output id="rgbGreenValue" for="rgbGreen" class="w-8 text-right tabular-nums">243</output>
+              </label>
+              <label class="flex items-center gap-3 text-xs text-blue-300">
+                <span class="w-4 font-bold">B</span>
+                <input id="rgbBlue" type="range" min="0" max="255" value="255" class="min-w-0 flex-1 accent-blue-500" aria-label="Nilai biru">
+                <output id="rgbBlueValue" for="rgbBlue" class="w-8 text-right tabular-nums">255</output>
+              </label>
+              <p id="rgbColorValue" aria-live="polite" class="text-center text-[11px] text-slate-400">rgb(0, 243, 255)</p>
+              <p id="rgbThemeStatus" aria-live="polite" class="text-[11px] text-slate-400"></p>
+            </div>
+          </div>
+        </nav>
+      </div>
+
+      <!-- Sidebar Footer -->
+      <div class="p-4 border-t border-slate-800/80">
+        <p class="text-xs text-slate-500 uppercase tracking-widest mb-3 px-2">Media Sosial</p>
+        <div class="flex justify-around items-center mb-4">
+          <a href="#" class="p-2.5 rounded-lg bg-slate-800 text-slate-300 hover:text-brand-cyan hover:bg-slate-700 transition"><i class="fa-brands fa-github text-lg"></i></a>
+          <a href="#" class="p-2.5 rounded-lg bg-slate-800 text-slate-300 hover:text-brand-pink hover:bg-slate-700 transition"><i class="fa-brands fa-instagram text-lg"></i></a>
+          <a href="#" class="p-2.5 rounded-lg bg-slate-800 text-slate-300 hover:text-blue-400 hover:bg-slate-700 transition"><i class="fa-brands fa-twitter text-lg"></i></a>
+          <a href="#" class="p-2.5 rounded-lg bg-slate-800 text-slate-300 hover:text-brand-purple hover:bg-slate-700 transition"><i class="fa-brands fa-discord text-lg"></i></a>
+        </div>
+        <button onclick="handleLogout()" class="w-full py-2.5 px-4 rounded-xl bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white transition font-semibold text-xs flex items-center justify-center gap-2">
+          <i class="fa-solid fa-power-off"></i>
+          Keluar dari Akun
+        </button>
+      </div>
+    </aside>
+
+
+    <!-- ==================== PAGE CONTENT ==================== -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
+
+      <!-- ACCOUNT SETTINGS -->
+      <section id="accountSettings" onclick="closeFloatingFeature(event)" class="hidden fixed inset-0 z-[60] overflow-y-auto bg-black/75 backdrop-blur-md p-4 sm:p-8">
+        <div onclick="event.stopPropagation()" class="mx-auto max-w-lg space-y-6 py-4">
+          <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <div class="h-8 w-3 rounded-full bg-brand-purple"></div>
+              <h2 class="font-orbitron text-xl font-bold tracking-wide sm:text-2xl">PENGATURAN AKUN</h2>
+            </div>
+            <button onclick="closeFloatingFeature()" aria-label="Tutup pengaturan akun" class="h-10 w-10 rounded-xl bg-slate-800 text-slate-300 transition hover:bg-red-500 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <form id="accountSettingsForm" class="glass-panel space-y-4 rounded-2xl border border-brand-purple/30 p-5 sm:p-7">
+            <div>
+              <label for="currentAccountPassword" class="mb-1 block text-xs font-semibold uppercase text-slate-300">Password saat ini</label>
+              <input id="currentAccountPassword" type="password" autocomplete="current-password" required class="w-full rounded-xl border border-slate-700 bg-slate-900/80 px-4 py-3 text-sm text-slate-100 focus:border-brand-cyan focus:outline-none">
+            </div>
+            <div>
+              <label for="newAccountUsername" class="mb-1 block text-xs font-semibold uppercase text-slate-300">Username baru <span class="normal-case text-slate-500">(kosongkan jika tidak diubah)</span></label>
+              <input id="newAccountUsername" type="text" maxlength="30" autocomplete="username" placeholder="Username baru" class="w-full rounded-xl border border-slate-700 bg-slate-900/80 px-4 py-3 text-sm text-slate-100 focus:border-brand-cyan focus:outline-none">
+            </div>
+            <div>
+              <label for="newAccountPassword" class="mb-1 block text-xs font-semibold uppercase text-slate-300">Password baru <span class="normal-case text-slate-500">(kosongkan jika tidak diubah)</span></label>
+              <input id="newAccountPassword" type="password" minlength="3" autocomplete="new-password" placeholder="Minimal 3 karakter" class="w-full rounded-xl border border-slate-700 bg-slate-900/80 px-4 py-3 text-sm text-slate-100 focus:border-brand-cyan focus:outline-none">
+            </div>
+            <p id="accountSettingsStatus" aria-live="polite" class="text-sm text-slate-300"></p>
+            <button type="submit" class="w-full rounded-xl bg-gradient-to-r from-brand-cyan to-brand-purple py-3 font-bold text-black transition hover:opacity-90">Simpan Perubahan</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- GLOBAL CHAT -->
+      <section id="globalChat" onclick="closeFloatingFeature(event)" class="hidden fixed inset-0 z-[60] overflow-y-auto overscroll-contain bg-black/75 backdrop-blur-md p-3 sm:p-8">
+        <div onclick="event.stopPropagation()" class="mx-auto flex min-h-[80vh] w-full max-w-3xl flex-col gap-4 py-2 sm:py-4">
+          <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <div class="h-8 w-3 rounded-full bg-brand-purple"></div>
+              <div>
+                <h2 class="font-orbitron text-lg font-bold tracking-wide sm:text-2xl">GLOBAL CHAT</h2>
+                <p class="text-xs text-slate-400">Pesan bersama akun di browser ini</p>
+              </div>
+            </div>
+            <button onclick="closeFloatingFeature()" aria-label="Tutup global chat" class="h-10 w-10 shrink-0 rounded-xl bg-slate-800 text-slate-300 transition hover:bg-red-500 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <div class="glass-panel flex min-h-0 flex-1 flex-col gap-4 rounded-2xl border border-brand-purple/30 p-4 sm:p-6">
+            <p id="globalChatStatus" aria-live="polite" class="text-xs text-slate-400">Chat tersimpan di browser ini dan diperbarui antar tab.</p>
+            <div id="globalChatMessages" aria-live="polite" class="flex max-h-[55vh] min-h-48 flex-1 flex-col gap-3 overflow-y-auto rounded-xl bg-slate-950/50 p-3 sm:p-4"></div>
+            <form id="globalChatForm" class="flex flex-col gap-2 sm:flex-row">
+              <label for="globalChatInput" class="sr-only">Tulis pesan</label>
+              <input id="globalChatInput" type="text" maxlength="500" autocomplete="off" required placeholder="Tulis pesan..." class="min-w-0 flex-1 rounded-xl border border-slate-700 bg-slate-900/80 px-4 py-3 text-sm text-slate-100 focus:border-brand-cyan focus:outline-none">
+              <button type="submit" class="rounded-xl bg-brand-purple px-5 py-3 font-bold text-white transition hover:opacity-90"><i class="fa-solid fa-paper-plane mr-2" aria-hidden="true"></i>Kirim</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- HERO SECTION -->
+      <section id="home" class="relative pt-6 pb-12 flex flex-col md:flex-row items-center justify-between gap-10">
+        <!-- Glowing Ambient Lights -->
+        <div class="absolute top-0 right-1/4 w-72 h-72 bg-brand-cyan/15 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute bottom-0 left-10 w-80 h-80 bg-brand-purple/15 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="flex-1 space-y-6 text-center md:text-left z-10">
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/80 border border-brand-cyan/40 text-xs text-brand-cyan">
+            <span class="w-2 h-2 rounded-full bg-brand-cyan animate-ping"></span>
+            SELAMAT DATANG DI GENERASI BARU
+          </div>
+          
+          <div class="flex flex-col sm:flex-row items-center md:items-start gap-4">
+            <img src="logo.jpeg" alt="Logo DIXXIE NEWERA" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border border-brand-cyan/40 shadow-neon-cyan">
+            <h1 class="font-orbitron text-4xl sm:text-6xl font-black leading-tight">
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan via-purple-400 to-brand-pink glow-text">
+                DIXXIE NEWERA
+              </span>
+            </h1>
+          </div>
+          <p class="font-orbitron text-xs sm:text-sm font-semibold tracking-[0.25em] text-brand-cyan">SINCE 18-11-2024</p>
+
+          <p class="text-slate-400 max-w-xl text-base sm:text-lg leading-relaxed">
+            TABRAK YANG MENGHALANGI<br><span class="text-xs text-brand-cyan">From -DIXIXIE</span>
+          </p>
+
+          <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-2">
+            <a href="#contact" class="px-6 py-3 rounded-xl glass-panel border border-slate-700 text-slate-200 font-bold uppercase tracking-wider text-xs hover:border-brand-cyan transition">
+              Hubungi Kami
+            </a>
+          </div>
+        </div>
+
+        <div class="relative z-10 mx-auto w-full max-w-xs shrink-0 sm:max-w-sm md:mx-0 lg:max-w-md">
+          <div class="absolute inset-6 rounded-full bg-brand-cyan/20 blur-3xl pointer-events-none"></div>
+          <img src="logo1.jpeg" alt="Logo DIXXIE NEWERA" class="relative block h-auto w-full rounded-3xl border border-brand-cyan/30 shadow-neon-cyan">
+        </div>
+
+      </section>
+
+      <!-- ADMIN PANEL (ADMIN ONLY) -->
+      <section id="adminPanel" onclick="closeFloatingFeature(event)" class="hidden fixed inset-0 z-[60] overflow-y-auto bg-black/75 backdrop-blur-md p-4 sm:p-8">
+        <div onclick="event.stopPropagation()" class="max-w-5xl mx-auto py-4 space-y-6">
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+          <div class="w-3 h-8 bg-brand-pink rounded-full"></div>
+          <h2 class="font-orbitron text-2xl font-bold tracking-wide">PANEL ADMIN</h2>
+          </div>
+          <button onclick="closeFloatingFeature()" aria-label="Tutup panel admin" class="w-10 h-10 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-red-500 transition"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="glass-panel p-6 rounded-2xl border border-brand-pink/30 space-y-4">
+          <div class="flex items-center justify-between gap-4">
+            <h3 class="font-orbitron text-lg font-bold text-brand-pink">Daftar Akun</h3>
+            <button onclick="renderAdminUsers()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm text-brand-cyan transition">
+              <i class="fa-solid fa-rotate mr-2"></i>Muat Ulang
+            </button>
+          </div>
+          <div id="adminUserList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+        </div>
+        <div class="glass-panel p-6 rounded-2xl border border-brand-purple/30 space-y-4">
+          <h3 class="font-orbitron text-lg font-bold text-brand-purple">Buat Akun Admin</h3>
+          <form id="createAdminAccountForm" class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <input id="newAdminName" type="text" maxlength="60" required placeholder="Nama lengkap" class="min-w-0 rounded-xl border border-slate-700 bg-slate-900/80 px-4 py-2.5 text-sm focus:border-brand-purple focus:outline-none">
+            <input id="newAdminUsername" type="text" maxlength="30" required placeholder="Username" class="min-w-0 rounded-xl border border-slate-700 bg-slate-900/80 px-4 py-2.5 text-sm focus:border-brand-purple focus:outline-none">
+            <input id="newAdminPassword" type="password" minlength="3" required placeholder="Password (min. 3 karakter)" class="min-w-0 rounded-xl border border-slate-700 bg-slate-900/80 px-4 py-2.5 text-sm focus:border-brand-purple focus:outline-none">
+            <button type="submit" class="rounded-xl bg-brand-purple px-5 py-2.5 text-sm font-bold text-white transition hover:opacity-90 sm:col-span-3">Buat Akun Admin</button>
+          </form>
+          <p id="createAdminAccountStatus" aria-live="polite" class="text-sm text-slate-400"></p>
+        </div>
+        <div class="glass-panel p-6 rounded-2xl border border-brand-cyan/30 space-y-4">
+          <h3 class="font-orbitron text-lg font-bold text-brand-cyan">Tambah ke List Babu</h3>
+          <form onsubmit="addBabuEntry(event)" class="flex flex-col sm:flex-row gap-3">
+            <input id="newBabuName" type="text" maxlength="60" required placeholder="Masukkan nama" class="min-w-0 flex-1 px-4 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl focus:outline-none focus:border-brand-cyan text-sm">
+            <button type="submit" class="px-5 py-2.5 rounded-xl bg-brand-cyan text-black font-bold text-sm hover:opacity-90 transition">Tambah</button>
+          </form>
+          <p id="babuAddStatus" aria-live="polite" class="text-sm text-slate-400"></p>
+        </div>
+        </div>
+      </section>
+
+      <!-- LIST BABU -->
+      <section id="babuList" onclick="closeFloatingFeature(event)" class="hidden fixed inset-0 z-[60] overflow-y-auto overscroll-contain bg-black/75 backdrop-blur-md p-3 sm:p-8">
+        <div onclick="event.stopPropagation()" class="w-full max-w-5xl mx-auto py-2 sm:py-4 space-y-4 sm:space-y-6">
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex min-w-0 items-center gap-3">
+          <div class="w-3 h-8 bg-brand-cyan rounded-full"></div>
+          <h2 class="min-w-0 font-orbitron text-lg sm:text-2xl font-bold tracking-wide leading-snug">𝗅𝗂𝗌𝗍 𝖻𝖺𝖻𝗎 𝖽𝗂𝗑𝗑𝗂𝖾</h2>
+          </div>
+          <button onclick="closeFloatingFeature()" aria-label="Tutup daftar" class="w-10 h-10 shrink-0 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-red-500 transition"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="glass-panel p-4 sm:p-7 rounded-2xl border border-brand-cyan/30">
+          <div class="mb-4 flex items-center justify-between gap-3 rounded-lg border border-brand-cyan/20 bg-slate-900/50 px-4 py-3">
+            <div>
+              <span class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Nomor Terakhir</span>
+              <span class="mt-1 block text-[10px] text-brand-cyan">Update otomatis saat data berubah</span>
+            </div>
+            <span id="babuCount" aria-live="polite" class="font-orbitron text-lg font-bold text-brand-cyan">0</span>
+          </div>
+          <div id="babuListContent" class="max-h-[60vh] overflow-y-auto overscroll-contain grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 pr-1"></div>
+        </div>
+        </div>
+      </section>
+
+      <!-- ORGANIZATION STRUCTURE -->
+      <section id="struktur" class="scroll-mt-24 space-y-6">
+        <div class="flex items-center gap-3">
+          <div class="w-3 h-8 bg-emerald-400 rounded-full"></div>
+          <h2 class="font-orbitron text-2xl font-bold tracking-wide">STRUKTUR ORGANISASI</h2>
+        </div>
+        <div class="flex items-center gap-4">
+          <img src="logo.jpeg" alt="Logo DIXXIE NEWERA" class="w-16 h-16 rounded-xl object-cover border border-brand-cyan/40 shadow-neon-cyan">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div class="org-card glass-panel p-5 rounded-2xl border border-brand-cyan/40 text-center">
+            <img src="logo.jpeg" alt="Logo DIXXIE NEWERA" class="w-12 h-12 mx-auto mb-3 rounded-xl object-cover border border-brand-cyan/40">
+            <h3 class="font-orbitron font-bold text-brand-cyan">FOUNDER</h3>
+            <p class="mt-2 text-sm font-semibold text-slate-200">SAPZY</p>
+          </div>
+          <div class="org-card glass-panel p-5 rounded-2xl border border-brand-purple/40 text-center">
+            <img src="logo.jpeg" alt="Logo DIXXIE NEWERA" class="w-12 h-12 mx-auto mb-3 rounded-xl object-cover border border-brand-purple/40">
+            <h3 class="font-orbitron font-bold text-brand-purple">OWNER</h3>
+            <p class="mt-2 text-sm font-semibold text-slate-200">IWAN</p>
+          </div>
+          <div class="org-card glass-panel p-5 rounded-2xl border border-brand-pink/40 text-center">
+            <img src="logo.jpeg" alt="Logo DIXXIE NEWERA" class="w-12 h-12 mx-auto mb-3 rounded-xl object-cover border border-brand-pink/40">
+            <h3 class="font-orbitron font-bold text-brand-pink">PETINGGI</h3>
+            <p class="mt-2 text-sm font-semibold text-slate-200">TOROO</p>
+          </div>
+          <div class="org-card glass-panel p-5 rounded-2xl border border-emerald-400/40 text-center">
+            <img src="logo.jpeg" alt="Logo DIXXIE NEWERA" class="w-12 h-12 mx-auto mb-3 rounded-xl object-cover border border-emerald-400/40">
+            <h3 class="font-orbitron font-bold text-emerald-400">PENGURUS</h3>
+            <p class="mt-2 text-sm font-semibold text-slate-200">PUTRAA</p>
+          </div>
+          <div class="org-card glass-panel p-5 rounded-2xl border border-blue-400/40 text-center">
+            <img src="logo.jpeg" alt="Logo DIXXIE NEWERA" class="w-12 h-12 mx-auto mb-3 rounded-xl object-cover border border-blue-400/40">
+            <h3 class="font-orbitron font-bold text-blue-400">PEMAIN INTI</h3>
+            <div id="corePlayersNames" class="mt-2 grid grid-cols-2 gap-2 text-sm font-semibold text-slate-200" aria-label="Daftar pemain inti"></div>
+            <form id="corePlayersEditForm" class="hidden mt-3 space-y-2">
+              <div class="grid grid-cols-2 gap-2">
+                <input id="corePlayersInput1" type="text" maxlength="30" placeholder="Pemain 1" aria-label="Nama pemain inti 1" class="min-w-0 rounded-lg border border-slate-700 bg-slate-900/80 px-2 py-2 text-xs text-slate-100 focus:border-brand-cyan focus:outline-none">
+                <input id="corePlayersInput2" type="text" maxlength="30" placeholder="Pemain 2" aria-label="Nama pemain inti 2" class="min-w-0 rounded-lg border border-slate-700 bg-slate-900/80 px-2 py-2 text-xs text-slate-100 focus:border-brand-cyan focus:outline-none">
+                <input id="corePlayersInput3" type="text" maxlength="30" placeholder="Pemain 3" aria-label="Nama pemain inti 3" class="min-w-0 rounded-lg border border-slate-700 bg-slate-900/80 px-2 py-2 text-xs text-slate-100 focus:border-brand-cyan focus:outline-none">
+                <input id="corePlayersInput4" type="text" maxlength="30" placeholder="Pemain 4" aria-label="Nama pemain inti 4" class="min-w-0 rounded-lg border border-slate-700 bg-slate-900/80 px-2 py-2 text-xs text-slate-100 focus:border-brand-cyan focus:outline-none">
+              </div>
+              <button type="submit" class="w-full rounded-lg bg-brand-cyan px-3 py-2 text-xs font-bold text-black transition hover:opacity-90">Simpan Nama</button>
+            </form>
+            <p id="corePlayersEditStatus" aria-live="polite" class="mt-2 text-xs text-slate-400"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- MEDIA GALLERY -->
+      <section id="gallery" class="scroll-mt-24 space-y-6">
+        <div class="flex items-center gap-3">
+          <div class="w-3 h-8 bg-blue-500 rounded-full"></div>
+          <h2 class="font-orbitron text-2xl font-bold tracking-wide">GALERI MEDIA</h2>
+        </div>
+
+        <form id="galleryUploadForm" class="hidden glass-panel rounded-xl border border-brand-cyan/30 p-4">
+          <label for="galleryPhotoInput" class="mb-2 block text-sm font-semibold text-brand-cyan">Tambah foto (khusus admin)</label>
+          <div class="flex flex-col gap-3 sm:flex-row">
+            <input id="galleryPhotoInput" type="file" accept="image/jpeg,image/png,image/webp,image/gif" required class="min-w-0 flex-1 text-sm text-slate-300 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-800 file:px-4 file:py-2 file:text-slate-100">
+            <button type="submit" class="rounded-xl bg-brand-cyan px-5 py-2.5 text-sm font-bold text-black transition hover:opacity-90">Unggah Foto</button>
+          </div>
+          <p class="mt-2 text-xs text-slate-400">Format JPG, PNG, WEBP, atau GIF. Maksimal 1 MB per foto.</p>
+          <p id="galleryUploadStatus" aria-live="polite" class="mt-2 text-sm text-slate-300"></p>
+        </form>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <figure class="overflow-hidden glass-panel p-2 rounded-xl border border-slate-800 hover:border-brand-cyan transition duration-300">
+            <img src="galery1.jpeg" alt="Foto galeri media 1" loading="lazy" class="w-full aspect-square rounded-lg object-cover">
+          </figure>
+          <figure class="overflow-hidden glass-panel p-2 rounded-xl border border-slate-800 hover:border-brand-purple transition duration-300">
+            <img src="galery2.jpeg" alt="Foto galeri media 2" loading="lazy" class="w-full aspect-square rounded-lg object-cover">
+          </figure>
+          <div id="galleryAddedPhotos" class="contents"></div>
+        </div>
+      </section>
+
+      <!-- INTERACTIVE CONTACT FORM -->
+      <section id="contact" class="scroll-mt-24 space-y-6">
+        <div class="flex items-center gap-3">
+          <div class="w-3 h-8 bg-emerald-400 rounded-full"></div>
+          <h2 class="font-orbitron text-2xl font-bold tracking-wide">HUBUNGI KAMI</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          
+          <!-- Contact Info -->
+          <div class="glass-panel p-6 sm:p-8 rounded-2xl border border-slate-800 space-y-6">
+            <h3 class="font-orbitron text-xl font-bold text-brand-cyan">Mari Terhubung & Berkarya</h3>
+            <p class="text-sm text-slate-400 leading-relaxed">
+              Punya ide proyek futuristik atau ingin bekerja sama dengan DIXXIE NEWERA? Kirim pesan melalui formulir ini.
+            </p>
+
+            <div class="space-y-4 pt-2">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-brand-cyan">
+                  <i class="fa-solid fa-envelope"></i>
+                </div>
+                <div>
+                  <p class="text-[10px] text-slate-400 uppercase">Email</p>
+                  <p class="text-sm font-semibold text-slate-200">contact@dixxienewera.io</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-brand-purple">
+                  <i class="fa-solid fa-location-dot"></i>
+                </div>
+                <div>
+                  <p class="text-[10px] text-slate-400 uppercase">Lokasi</p>
+                  <p class="text-sm font-semibold text-slate-200">Cyber Hub, Bumi</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form -->
+          <div class="glass-panel p-6 sm:p-8 rounded-2xl border border-slate-800">
+            <form onsubmit="handleContactSubmit(event)" class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Nama Anda</label>
+                <input type="text" required placeholder="Nama lengkap" class="w-full px-4 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl focus:outline-none focus:border-brand-cyan text-sm transition">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Alamat Email</label>
+                <input type="email" required placeholder="nama@contoh.com" class="w-full px-4 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl focus:outline-none focus:border-brand-cyan text-sm transition">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Pesan</label>
+                <textarea rows="4" required placeholder="Tuliskan pesan Anda di sini..." class="w-full px-4 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl focus:outline-none focus:border-brand-cyan text-sm transition resize-none"></textarea>
+              </div>
+              <button type="submit" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-400 text-black font-bold uppercase tracking-wider rounded-xl shadow-lg shadow-emerald-500/20 hover:opacity-90 transition">
+                Kirim Pesan
+              </button>
+            </form>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="mt-auto glass-panel border-t border-slate-800 py-6 text-center text-xs text-slate-500">
+      <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <p>&copy; 2026 <span class="font-orbitron font-bold text-brand-cyan">DIXXIE NEWERA</span>. Hak cipta dilindungi.</p>
+        <p>Dibuat dengan estetika cyberpunk dan desain responsif</p>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ==================== JAVASCRIPT APP LOGIC ==================== -->
+  <script>
+    // Storage Key for registered users in LocalStorage
+    const USERS_KEY = 'dixxie_registered_users';
+    const CURRENT_USER_KEY = 'dixxie_active_session';
+
+    function initUsers() {
+      let users = JSON.parse(localStorage.getItem(USERS_KEY)) || [];
+      if (!Array.isArray(users)) users = [];
+      users = users.filter(user => !(user.username === 'dixxie' && user.password === '123'));
+      const adminAccount = users.find(user => user.username.toLowerCase() === 'toroo');
+      if (adminAccount) {
+        adminAccount.password = '1224';
+        adminAccount.role = 'admin';
+      } else {
+        users.push({ username: 'toroo', name: 'Admin', password: '1224', role: 'admin' });
+      }
+      localStorage.setItem(USERS_KEY, JSON.stringify(users));
+      if (localStorage.getItem(CURRENT_USER_KEY) === 'dixxie') {
+        localStorage.removeItem(CURRENT_USER_KEY);
+      }
+    }
+
+    // Check auth on load
+    window.addEventListener('DOMContentLoaded', () => {
+      initUsers();
+      checkAuthSession();
+    });
+
+    function checkAuthSession() {
+      const activeUser = localStorage.getItem(CURRENT_USER_KEY);
+      const authScreen = document.getElementById('authScreen');
+      const userDisplay = document.getElementById('currentUserDisplay');
+
+      if (activeUser) {
+        authScreen.classList.add('hidden');
+        userDisplay.textContent = activeUser.toUpperCase();
+      } else {
+        authScreen.classList.remove('hidden');
+      }
+    }
+
+    // Auth Tab Switcher
+    function switchAuthTab(tab) {
+      const loginForm = document.getElementById('loginForm');
+      const regForm = document.getElementById('registerForm');
+      const tabLoginBtn = document.getElementById('tabLoginBtn');
+      const tabRegBtn = document.getElementById('tabRegisterBtn');
+      const toast = document.getElementById('authToast');
+
+      toast.classList.add('hidden');
+
+      if (tab === 'login') {
+        loginForm.classList.remove('hidden');
+        regForm.classList.add('hidden');
+        tabLoginBtn.className = "flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-300 bg-gradient-to-r from-brand-cyan to-blue-600 text-black shadow-neon-cyan";
+        tabRegBtn.className = "flex-1 py-2 rounded-lg text-sm font-semibold text-slate-400 hover:text-white transition-all duration-300";
+      } else {
+        loginForm.classList.add('hidden');
+        regForm.classList.remove('hidden');
+        tabRegBtn.className = "flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-300 bg-gradient-to-r from-brand-purple to-brand-pink text-white shadow-neon-purple";
+        tabLoginBtn.className = "flex-1 py-2 rounded-lg text-sm font-semibold text-slate-400 hover:text-white transition-all duration-300";
+      }
+    }
+
+    // Toast Notice helper
+    function showAuthToast(msg, type = 'error') {
+      const toast = document.getElementById('authToast');
+      toast.classList.remove('hidden', 'bg-red-500/20', 'text-red-300', 'bg-emerald-500/20', 'text-emerald-300');
+      
+      if (type === 'error') {
+        toast.classList.add('bg-red-500/20', 'text-red-300', 'border', 'border-red-500/30');
+      } else {
+        toast.classList.add('bg-emerald-500/20', 'text-emerald-300', 'border', 'border-emerald-500/30');
+      }
+      toast.textContent = msg;
+    }
+
+    // Login Handler
+    function handleLogin(e) {
+      e.preventDefault();
+      const userVal = document.getElementById('loginUser').value.trim();
+      const passVal = document.getElementById('loginPass').value.trim();
+
+      const users = JSON.parse(localStorage.getItem(USERS_KEY)) || [];
+      const match = users.find(u => u.username.toLowerCase() === userVal.toLowerCase() && u.password === passVal);
+
+      if (match) {
+        localStorage.setItem(CURRENT_USER_KEY, match.username);
+        showAuthToast('Berhasil masuk! Portal sedang dibuka...', 'success');
+        setTimeout(() => {
+          checkAuthSession();
+        }, 600);
+      } else {
+        showAuthToast('Nama pengguna atau kata sandi salah.', 'error');
+      }
+    }
+
+    // Register Handler
+    function handleRegister(e) {
+      e.preventDefault();
+      const nameVal = document.getElementById('regName').value.trim();
+      const userVal = document.getElementById('regUser').value.trim();
+      const passVal = document.getElementById('regPass').value.trim();
+
+      if (passVal.length < 3) {
+        showAuthToast('Kata sandi harus terdiri dari minimal 3 karakter.', 'error');
+        return;
+      }
+
+      const users = JSON.parse(localStorage.getItem(USERS_KEY)) || [];
+      const exists = users.some(u => u.username.toLowerCase() === userVal.toLowerCase());
+
+      if (exists) {
+        showAuthToast('Nama pengguna sudah dipakai. Silakan pilih yang lain.', 'error');
+        return;
+      }
+
+      users.push({ name: nameVal, username: userVal, password: passVal });
+      localStorage.setItem(USERS_KEY, JSON.stringify(users));
+
+      showAuthToast('Akun berhasil dibuat! Kembali ke halaman masuk...', 'success');
+      setTimeout(() => {
+        switchAuthTab('login');
+        document.getElementById('loginUser').value = userVal;
+        document.getElementById('loginPass').value = '';
+      }, 1000);
+    }
+
+    // Logout
+    function handleLogout() {
+      localStorage.removeItem(CURRENT_USER_KEY);
+      checkAuthSession();
+      // Reset sidebar if open
+      document.getElementById('sidebar').classList.add('-translate-x-full');
+      document.getElementById('sidebarOverlay').classList.add('hidden');
+    }
+
+    // Sidebar Toggle
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      
+      const isOpen = !sidebar.classList.contains('-translate-x-full');
+      if (isOpen) {
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+      } else {
+        sidebar.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+      }
+    }
+
+    // Theme Toggle (Dark / Light)
+    function toggleTheme() {
+      const html = document.documentElement;
+      const themeIcon = document.getElementById('themeIcon');
+      
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        html.classList.add('light');
+        themeIcon.classList.remove('fa-sun');
+        themeIcon.classList.add('fa-moon');
+        document.body.classList.remove('bg-brand-dark', 'text-slate-100');
+        document.body.classList.add('bg-slate-100', 'text-slate-900');
+      } else {
+        html.classList.remove('light');
+        html.classList.add('dark');
+        themeIcon.classList.remove('fa-moon');
+        themeIcon.classList.add('fa-sun');
+        document.body.classList.remove('bg-slate-100', 'text-slate-900');
+        document.body.classList.add('bg-brand-dark', 'text-slate-100');
+      }
+    }
+
+    // Contact Form Handler
+    function handleContactSubmit(e) {
+      e.preventDefault();
+      alert('Terima kasih telah menghubungi DIXXIE NEWERA! Pesan Anda berhasil dikirim.');
+      e.target.reset();
+    }
+  </script>
+</body>
+</html>
